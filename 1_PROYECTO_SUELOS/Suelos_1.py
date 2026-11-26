@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 GeoLab - Sistema de Mecánica de Suelos (FIGMM / UNI)
 Aplicación de Escritorio Profesional (CustomTkinter + Matplotlib + ReportLab)
@@ -3226,74 +3226,84 @@ class ClasificacionSuelos(BaseEnsayo):
         scroll_in = ctk.CTkScrollableFrame(self.panel_izquierdo, fg_color="transparent")
         scroll_in.pack(fill="both", expand=True)
 
-        # 1. Asistente y Selector de Modo (2 Opciones para rellenar)
-        card_modo = ctk.CTkFrame(scroll_in, fg_color=PRIMARY_LIGHT, corner_radius=8, border_width=1, border_color=PRIMARY_BORDER)
-        card_modo.pack(fill="x", pady=(0, 6), padx=2)
+        # Banner informativo de requerimientos
+        card_info = ctk.CTkFrame(scroll_in, fg_color=PRIMARY_LIGHT, corner_radius=8, border_width=1, border_color=PRIMARY_BORDER)
+        card_info.pack(fill="x", pady=(0, 6), padx=2)
 
         ctk.CTkLabel(
-            card_modo,
-            text="Opciones para Rellenar los Datos de Clasificación:",
+            card_info,
+            text="🏷️ Requisitos para la Clasificación (SUCS ASTM D2487 y AASHTO M 145):",
             font=ctk.CTkFont(size=11, weight="bold"),
             text_color=PRIMARY
         ).pack(anchor="w", padx=10, pady=(6, 2))
 
         ctk.CTkLabel(
-            card_modo,
-            text="Los datos pueden traerse automáticamente de la Granulometría y Límites de Atterberg, o escribirse a mano en las dos tarjetas inferiores.",
+            card_info,
+            text="Para clasificar el suelo se requieren 2 componentes: Granulometría y Límites de Atterberg. Puede abrir el ensayo respectivo para ingresar los tamices o copas de Casagrande, o escribir los valores directamente en las tarjetas inferiores:",
             font=ctk.CTkFont(size=9),
             text_color=NEUTRAL_MUTED,
             wraplength=480,
             justify="left"
         ).pack(anchor="w", padx=10, pady=(0, 6))
 
-        f_bar_modo = ctk.CTkFrame(card_modo, fg_color="transparent")
-        f_bar_modo.pack(fill="x", padx=8, pady=(0, 6))
-
-        self.seg_modo = ctk.CTkSegmentedButton(
-            f_bar_modo,
-            values=["Traer de Ensayos Previos (Auto)", "Ingreso Manual (Escribir datos)"],
-            command=self.cambiar_modo,
-            selected_color=PRIMARY,
-            selected_hover_color=PRIMARY_HOVER,
-            unselected_color=CARD_BG,
-            unselected_hover_color=CARD_BG_ALT,
-            font=ctk.CTkFont(size=10, weight="bold"),
-            height=28
-        )
-        self.seg_modo.set("Ingreso Manual (Escribir datos)")
-        self.seg_modo.pack(side="left", fill="x", expand=True, padx=(0, 6))
-
-        crear_boton(
-            f_bar_modo,
-            "Traer datos",
-            self.sincronizar_desde_ensayos,
-            color=PRIMARY,
-            hover=PRIMARY_HOVER,
-            width=110,
-            height=28,
-            icon="🔗"
-        ).pack(side="right")
-
-        # 2. Tarjeta 1: Datos de Granulometría
+        # ------------------------------------------------------------------
+        # 1. OPCIÓN 1: AGREGAR GRANULOMETRÍA
+        # ------------------------------------------------------------------
         self.card_gr = ctk.CTkFrame(scroll_in, fg_color=CARD_BG, corner_radius=8, border_width=1, border_color=BORDER_COLOR)
         self.card_gr.pack(fill="x", pady=4, padx=2)
 
-        hdr_gr = ctk.CTkFrame(self.card_gr, fg_color=PRIMARY_LIGHT, corner_radius=6, height=28)
+        hdr_gr = ctk.CTkFrame(self.card_gr, fg_color=PRIMARY_LIGHT, corner_radius=6, height=32)
         hdr_gr.pack(fill="x", padx=4, pady=4)
         hdr_gr.pack_propagate(False)
+
         ctk.CTkLabel(
             hdr_gr,
-            text="🔬  Opción / Tarjeta 1: Datos de Granulometría",
+            text="🔬  Opción 1: Agregar Granulometría (ASTM D6913)",
             font=ctk.CTkFont(size=11, weight="bold"),
             text_color=PRIMARY
         ).pack(side="left", padx=8, pady=3)
 
+        self.lbl_estado_gr = ctk.CTkLabel(
+            hdr_gr,
+            text="⏳ Pendiente",
+            font=ctk.CTkFont(size=10, weight="bold"),
+            text_color=ACCENT_RED
+        )
+        self.lbl_estado_gr.pack(side="right", padx=8)
+
+        # Botón destacado para abrir el ensayo completo de granulometría
+        f_btn_gr = ctk.CTkFrame(self.card_gr, fg_color="transparent")
+        f_btn_gr.pack(fill="x", padx=8, pady=(4, 2))
+
+        crear_boton(
+            f_btn_gr,
+            "📋 Abrir Ensayo de Granulometría (Poner tamices y todo)",
+            self.abrir_ensayo_granulometria,
+            color=PRIMARY,
+            hover=PRIMARY_HOVER,
+            icon="🔬",
+            height=30
+        ).pack(side="left", fill="x", expand=True)
+
+        crear_boton(
+            f_btn_gr,
+            "Traer datos",
+            self.sincronizar_granulometria,
+            color=CARD_BG_ALT,
+            hover=BORDER_COLOR,
+            width=100,
+            height=30,
+            icon="🔗"
+        ).pack(side="right", padx=(6, 0))
+
         ctk.CTkLabel(
             self.card_gr,
-            text="Porcentaje que pasa cada malla (acumulado).",
-            font=ctk.CTkFont(size=10),
-            text_color=NEUTRAL_MUTED
-        ).pack(anchor="w", padx=10, pady=(2, 4))
+            text="Llene la serie de tamices (3\" a Fondo) para calcular la curva y pasantes, o escriba abajo los %:",
+            font=ctk.CTkFont(size=9),
+            text_color=NEUTRAL_MUTED,
+            wraplength=480,
+            justify="left"
+        ).pack(anchor="w", padx=10, pady=(1, 4))
 
         # Grid de Mallas Pasantes
         f_grid_p = ctk.CTkFrame(self.card_gr, fg_color="transparent")
@@ -3374,42 +3384,84 @@ class ClasificacionSuelos(BaseEnsayo):
 
         ctk.CTkLabel(
             self.card_gr,
-            text="💡 Si escribes D60, D30 y D10, Cu y Cc se calculan solos. Con menos de 12 % de finos hacen falta.",
+            text="💡 Si escribe D60, D30 y D10, Cu y Cc se calculan solos.",
             font=ctk.CTkFont(size=9),
             text_color=NEUTRAL_MUTED
         ).pack(anchor="w", padx=10, pady=(2, 6))
 
-        # 3. Tarjeta 2: Límites de Atterberg
+        # ------------------------------------------------------------------
+        # 2. OPCIÓN 2: AGREGAR LÍMITES DE ATTERBERG
+        # ------------------------------------------------------------------
         self.card_att = ctk.CTkFrame(scroll_in, fg_color=CARD_BG, corner_radius=8, border_width=1, border_color=BORDER_COLOR)
         self.card_att.pack(fill="x", pady=4, padx=2)
 
-        hdr_att = ctk.CTkFrame(self.card_att, fg_color=PRIMARY_LIGHT, corner_radius=6, height=28)
+        hdr_att = ctk.CTkFrame(self.card_att, fg_color=PRIMARY_LIGHT, corner_radius=6, height=32)
         hdr_att.pack(fill="x", padx=4, pady=4)
         hdr_att.pack_propagate(False)
+
         ctk.CTkLabel(
             hdr_att,
-            text="🥣  Opción / Tarjeta 2: Límites de Atterberg",
+            text="🥣  Opción 2: Agregar Límites de Atterberg (ASTM D4318)",
             font=ctk.CTkFont(size=11, weight="bold"),
             text_color=PRIMARY
         ).pack(side="left", padx=8, pady=3)
 
+        self.lbl_estado_att = ctk.CTkLabel(
+            hdr_att,
+            text="⏳ Pendiente",
+            font=ctk.CTkFont(size=10, weight="bold"),
+            text_color=ACCENT_RED
+        )
+        self.lbl_estado_att.pack(side="right", padx=8)
+
+        # Botón destacado para abrir el ensayo completo de atterberg
+        f_btn_att = ctk.CTkFrame(self.card_att, fg_color="transparent")
+        f_btn_att.pack(fill="x", padx=8, pady=(4, 2))
+
+        crear_boton(
+            f_btn_att,
+            "📋 Abrir Ensayo de Límites de Atterberg (Copas, golpes y taras)",
+            self.abrir_ensayo_atterberg,
+            color=PRIMARY,
+            hover=PRIMARY_HOVER,
+            icon="🥣",
+            height=30
+        ).pack(side="left", fill="x", expand=True)
+
+        crear_boton(
+            f_btn_att,
+            "Traer datos",
+            self.sincronizar_atterberg,
+            color=CARD_BG_ALT,
+            hover=BORDER_COLOR,
+            width=100,
+            height=30,
+            icon="🔗"
+        ).pack(side="right", padx=(6, 0))
+
+        # Barra secundaria con NP y ayuda
+        f_sub_att = ctk.CTkFrame(self.card_att, fg_color="transparent")
+        f_sub_att.pack(fill="x", padx=8, pady=(2, 2))
+
         self.var_np = ctk.BooleanVar(value=False)
         ctk.CTkCheckBox(
-            hdr_att,
-            text="Suelo No Plástico (NP)",
+            f_sub_att,
+            text="Material No Plástico (NP) — Sin plasticidad",
             variable=self.var_np,
             command=self.toggle_np,
             font=ctk.CTkFont(size=10, weight="bold"),
-            text_color=NEUTRAL_HEADING,
+            text_color=ACCENT_RED,
             height=18
-        ).pack(side="right", padx=8)
+        ).pack(side="left")
 
         ctk.CTkLabel(
             self.card_att,
-            text="Si el suelo es no plástico (NP) deja LL, LP e IP en 0.",
-            font=ctk.CTkFont(size=10),
-            text_color=NEUTRAL_MUTED
-        ).pack(anchor="w", padx=10, pady=(2, 4))
+            text="Abra el ensayo para registrar puntos de Casagrande, o escriba abajo LL y LP:",
+            font=ctk.CTkFont(size=9),
+            text_color=NEUTRAL_MUTED,
+            wraplength=480,
+            justify="left"
+        ).pack(anchor="w", padx=10, pady=(1, 4))
 
         f_grid_att = ctk.CTkFrame(self.card_att, fg_color="transparent")
         f_grid_att.pack(fill="x", padx=8, pady=2)
@@ -3438,7 +3490,7 @@ class ClasificacionSuelos(BaseEnsayo):
 
         ctk.CTkLabel(
             self.card_att,
-            text="💡 Si escribes LL y LP, el IP se calcula solo.",
+            text="💡 Si escribe LL y LP, el IP se calcula automáticamente.",
             font=ctk.CTkFont(size=9),
             text_color=NEUTRAL_MUTED
         ).pack(anchor="w", padx=10, pady=(2, 6))
@@ -3454,7 +3506,7 @@ class ClasificacionSuelos(BaseEnsayo):
         b_bar = ctk.CTkFrame(self.panel_izquierdo, fg_color="transparent")
         b_bar.pack(fill="x", pady=6)
         crear_boton(b_bar, "Evaluar Clasificación", self.calcular, color=PRIMARY, hover=PRIMARY_HOVER, icon="⚡").pack(side="left", padx=2, fill="x", expand=True)
-        crear_boton(b_bar, "Traer datos", self.sincronizar_desde_ensayos, color=PRIMARY_LIGHT, hover=PRIMARY_BORDER, icon="🔗").pack(side="left", padx=2, fill="x", expand=True)
+        crear_boton(b_bar, "Sincronizar Ambos", self.sincronizar_desde_ensayos, color=PRIMARY_LIGHT, hover=PRIMARY_BORDER, icon="🔗").pack(side="left", padx=2, fill="x", expand=True)
         b_bar.winfo_children()[-1].configure(text_color=PRIMARY)
         crear_boton(b_bar, "Cargar ejemplo", self.cargar_demo, color=CARD_BG_ALT, hover=BORDER_COLOR, icon="🧪").pack(side="left", padx=2, fill="x", expand=True)
         crear_boton(b_bar, "Limpiar", self.limpiar, color=NEUTRAL_MUTED, hover=NEUTRAL_BODY, icon="🗑").pack(side="left", padx=2, fill="x", expand=True)
@@ -3503,19 +3555,21 @@ class ClasificacionSuelos(BaseEnsayo):
             self.e_ll.configure(state="normal")
             self.e_lp.configure(state="normal")
             self.e_ip.configure(state="normal")
+        if hasattr(self, "lbl_estado_att"):
+            self.actualizar_estados_insumos()
 
-    def cambiar_modo(self, val):
-        if "Traer" in val:
-            self.modo_manual = False
-            self.sincronizar_desde_ensayos(silent=False)
-        else:
-            self.modo_manual = True
+    def abrir_ensayo_granulometria(self):
+        """Abre el ensayo de granulometría para colocar los tamices y calcular."""
+        self.controller.origen_clasificacion = True
+        self.controller.mostrar("Granulometria")
 
-    def sincronizar_desde_ensayos(self, silent=False):
+    def abrir_ensayo_atterberg(self):
+        """Abre el ensayo de límites de Atterberg para registrar copas de Casagrande y calcular."""
+        self.controller.origen_clasificacion = True
+        self.controller.mostrar("LimitesAtterberg")
+
+    def sincronizar_granulometria(self, silent=False):
         g = self.controller.geo_state["ensayos"].get("granulometria", {})
-        a = self.controller.geo_state["ensayos"].get("atterberg", {})
-
-        algo = False
         if g and g.get("p4") is not None:
             self.e_p4.delete(0, "end"); self.e_p4.insert(0, f"{g['p4']:.2f}")
             self.e_p10.delete(0, "end"); self.e_p10.insert(0, f"{g['p10']:.2f}")
@@ -3533,8 +3587,17 @@ class ClasificacionSuelos(BaseEnsayo):
             if g.get("cu"): self.e_cu.insert(0, f"{g['cu']:.2f}")
             self.e_cc.delete(0, "end")
             if g.get("cc"): self.e_cc.insert(0, f"{g['cc']:.2f}")
-            algo = True
+            self.actualizar_estados_insumos()
+            if not silent:
+                messagebox.showinfo("Granulometría", "Datos de Granulometría cargados con éxito.")
+            return True
+        else:
+            if not silent:
+                messagebox.showwarning("Sin Granulometría", "Aún no se ha calculado el ensayo de Granulometría.\nPresione 'Abrir Ensayo de Granulometría' para ingresar los tamices.")
+            return False
 
+    def sincronizar_atterberg(self, silent=False):
+        a = self.controller.geo_state["ensayos"].get("atterberg", {})
         if a and (a.get("ll") is not None or a.get("np")):
             if a.get("np"):
                 self.var_np.set(True)
@@ -3546,15 +3609,76 @@ class ClasificacionSuelos(BaseEnsayo):
                 self.e_lp.delete(0, "end"); self.e_lp.insert(0, f"{a['lp']:.2f}")
                 ip_v = a.get("ip_entero") if a.get("ip_entero") is not None else a.get("ip")
                 self.e_ip.delete(0, "end"); self.e_ip.insert(0, f"{ip_v:.2f}" if isinstance(ip_v, float) else f"{ip_v}")
-            algo = True
+            self.actualizar_estados_insumos()
+            if not silent:
+                messagebox.showinfo("Límites de Atterberg", "Datos de Límites de Atterberg cargados con éxito.")
+            return True
+        else:
+            if not silent:
+                messagebox.showwarning("Sin Límites", "Aún no se han calculado los Límites de Atterberg.\nPresione 'Abrir Ensayo de Límites' para ingresar las copas o registrar suelo NP.")
+            return False
 
+    def actualizar_estados_insumos(self):
+        # 1. Estado Granulometría
+        g = self.controller.geo_state["ensayos"].get("granulometria", {})
+        if g and g.get("p4") is not None and g.get("p200") is not None:
+            self.lbl_estado_gr.configure(
+                text=f"✔ Listo (P4={g['p4']:.1f}%, P200={g['p200']:.1f}%)",
+                text_color=ACCENT_GREEN
+            )
+        else:
+            p4_val = self.e_p4.get().strip() if hasattr(self, "e_p4") else ""
+            p200_val = self.e_p200.get().strip() if hasattr(self, "e_p200") else ""
+            if p4_val and p200_val:
+                self.lbl_estado_gr.configure(
+                    text=f"✔ Datos Manuales (P4={p4_val}%, P200={p200_val}%)",
+                    text_color=ACCENT_GREEN
+                )
+            else:
+                self.lbl_estado_gr.configure(text="⏳ Pendiente", text_color=ACCENT_RED)
+
+        # 2. Estado Atterberg
+        a = self.controller.geo_state["ensayos"].get("atterberg", {})
+        if a and a.get("np"):
+            self.lbl_estado_att.configure(text="✔ No Plástico (NP)", text_color=ACCENT_GREEN)
+        elif a and a.get("ll") is not None and a.get("lp") is not None:
+            ip_val = a.get("ip_entero", a.get("ip"))
+            self.lbl_estado_att.configure(
+                text=f"✔ Listo (LL={a['ll']:.1f}%, LP={a['lp']:.1f}%, IP={ip_val})",
+                text_color=ACCENT_GREEN
+            )
+        else:
+            if self.var_np.get():
+                self.lbl_estado_att.configure(text="✔ No Plástico (NP)", text_color=ACCENT_GREEN)
+            else:
+                ll_val = self.e_ll.get().strip() if hasattr(self, "e_ll") else ""
+                lp_val = self.e_lp.get().strip() if hasattr(self, "e_lp") else ""
+                if ll_val and lp_val:
+                    self.lbl_estado_att.configure(text=f"✔ Datos Manuales (LL={ll_val}%, LP={lp_val}%)", text_color=ACCENT_GREEN)
+                else:
+                    self.lbl_estado_att.configure(text="⏳ Pendiente", text_color=ACCENT_RED)
+
+    def al_mostrar(self):
+        super().al_mostrar()
+        self.sincronizar_desde_ensayos(silent=True)
+        self.actualizar_estados_insumos()
+        try:
+            self.calcular(silent=True)
+        except Exception:
+            pass
+
+    def sincronizar_desde_ensayos(self, silent=False):
+        sg = self.sincronizar_granulometria(silent=True)
+        sa = self.sincronizar_atterberg(silent=True)
+        algo = sg or sa
+        self.actualizar_estados_insumos()
         if algo:
             if not silent:
                 messagebox.showinfo("Sincronización Exitosa", "Datos traídos exitosamente de Granulometría y Atterberg.")
             self.calcular(silent=silent)
         else:
             if not silent:
-                messagebox.showwarning("Sin Ensayos Previos", "Aún no hay Granulometría ni Límites de Atterberg calculados. Calcule esos ensayos o escriba los datos a mano.")
+                messagebox.showwarning("Sin Ensayos Previos", "Aún no hay Granulometría ni Límites calculados.\nUse los botones 'Abrir Ensayo' para poner los tamices y copas, o escriba los datos a mano.")
         return algo
 
     def calcular(self, silent=False):
@@ -3618,6 +3742,7 @@ class ClasificacionSuelos(BaseEnsayo):
             }
             self.calculado = True
             self.controller.geo_state["ensayos"]["clasificacion"] = self.datos_calculados
+            self.actualizar_estados_insumos()
             self.mostrar_resultados()
             if not silent:
                 messagebox.showinfo("Clasificación Geotécnica", f"Resultados:\n• SUCS: {sucs['simbolo']} ({sucs['desc']})\n• AASHTO: {aashto['texto']} — {aashto['desc']}")
@@ -3741,7 +3866,7 @@ class ClasificacionSuelos(BaseEnsayo):
         self.e_lp.delete(0, "end"); self.e_lp.insert(0, "23.40")
         self.e_ip.delete(0, "end"); self.e_ip.insert(0, "16.30")
         self.modo_manual = True
-        self.seg_modo.set("Ingreso Manual (Escribir datos)")
+        self.actualizar_estados_insumos()
         self.calcular()
 
     def limpiar(self):
@@ -3760,6 +3885,7 @@ class ClasificacionSuelos(BaseEnsayo):
         self.e_ip.delete(0, "end")
         self.var_np.set(False)
         self.toggle_np()
+        self.actualizar_estados_insumos()
 
     def exportar_pdf(self):
         ruta = filedialog.asksaveasfilename(
