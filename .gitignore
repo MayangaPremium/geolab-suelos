@@ -1,0 +1,15 @@
+# Claves secretas y configuración local
+.env
+2_LARAVEL_Suelos-api/.env
+
+# Entornos virtuales y librerías pesadas
+.venv/
+__pycache__/
+*.pyc
+2_LARAVEL_Suelos-api/vendor/
+2_LARAVEL_Suelos-api/node_modules/
+
+# Archivos temporales y logs
+*.log
+.DS_Store
+Thumbs.db
